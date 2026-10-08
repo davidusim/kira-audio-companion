@@ -14,17 +14,17 @@ export interface FrameFeatures {
 export function computeFeatures(time: Float32Array, freqDb: Float32Array, sampleRate: number): FrameFeatures {
   let sum = 0, peak = 0, zc = 0;
   for (let i = 0; i < time.length; i++) {
-    const v = time[i];
+    const v = time[i] ?? 0;
     sum += v * v;
     const a = Math.abs(v);
     if (a > peak) peak = a;
-    if (i > 0 && (v >= 0) !== (time[i - 1] >= 0)) zc++;
+    if (i > 0 && (v >= 0) !== ((time[i - 1] ?? 0) >= 0)) zc++;
   }
-  const rms = Math.sqrt(sum / time.length);
+  const rms = time.length > 0 ? Math.sqrt(sum / time.length) : 0;
   const binHz = sampleRate / 2 / freqDb.length;
   let total = 0, band = 0, weighted = 0;
   for (let i = 1; i < freqDb.length; i++) {
-    const mag = Math.pow(10, freqDb[i] / 20);
+    const mag = Math.pow(10, (freqDb[i] ?? -Infinity) / 20);
     const hz = i * binHz;
     total += mag;
     weighted += mag * hz;

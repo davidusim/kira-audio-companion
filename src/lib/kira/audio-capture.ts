@@ -53,7 +53,7 @@ export class MicCapture {
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          deviceId: opts.deviceId ? { exact: opts.deviceId } : undefined,
+          ...(opts.deviceId ? { deviceId: { exact: opts.deviceId } } : {}),
           noiseSuppression: opts.noiseSuppression,
           echoCancellation: opts.echoCancellation,
           autoGainControl: opts.autoGainControl,

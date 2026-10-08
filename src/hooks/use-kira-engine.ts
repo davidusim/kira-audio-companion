@@ -18,6 +18,7 @@ export function useKiraEngine(settings: KiraSettings, serverAi?: ProviderStatus)
   const [sampleRate, setSampleRate] = useState<number>();
   const [activeDevice, setActiveDevice] = useState<string>();
   const [supported, setSupported] = useState(true);
+  const [providersReady, setProvidersReady] = useState(false);
 
   const stateRef = useRef<EngineState>("idle");
   const settingsRef = useRef(settings);
@@ -59,6 +60,7 @@ export function useKiraEngine(settings: KiraSettings, serverAi?: ProviderStatus)
 
   // Initial capability + permission probe
   useEffect(() => {
+    setProvidersReady(true);
     sessionStore.hydrate();
     const ok = isCaptureSupported();
     setSupported(ok);
@@ -73,7 +75,7 @@ export function useKiraEngine(settings: KiraSettings, serverAi?: ProviderStatus)
   useEffect(() => vad.current.setSensitivity(settings.sensitivity), [settings.sensitivity]);
 
   const handleTranscript = useCallback(async (text: string, confidence?: number) => {
-    log({ type: "transcript", source: "stt", text, confidence });
+    log({ type: "transcript", source: "stt", text, ...(confidence === undefined ? {} : { confidence }) });
     const status = ai.status();
     if (status.state !== "ready") {
       log({ type: "system", source: "ai", text: `No response generated — ${status.label}: ${status.state}.` });
@@ -161,7 +163,7 @@ export function useKiraEngine(settings: KiraSettings, serverAi?: ProviderStatus)
     setState("requesting", "asking for microphone");
     const c = new MicCapture();
     try {
-      await c.start({ deviceId: s.deviceId || undefined, noiseSuppression: s.noiseSuppression, echoCancellation: s.echoCancellation, autoGainControl: s.autoGainControl });
+      await c.start({ ...(s.deviceId ? { deviceId: s.deviceId } : {}), noiseSuppression: s.noiseSuppression, echoCancellation: s.echoCancellation, autoGainControl: s.autoGainControl });
     } catch (e) {
       const err = e instanceof CaptureError ? e : new CaptureError("unknown", String(e));
       if (err.code === "permission-denied") setPermission("denied");
@@ -243,7 +245,11 @@ export function useKiraEngine(settings: KiraSettings, serverAi?: ProviderStatus)
   return {
     state, permission, devices, metrics, errors, interim, sampleRate, activeDevice, supported,
     analyserRef: capture, timeBuf,
-    providers: { stt: stt.status(), tts: tts.status(), ai: ai.status() },
+    providers: {
+      stt: providersReady ? stt.status() : { id: stt.id, label: "Browser speech recognition", state: "checking" as const, detail: "Checking browser support." },
+      tts: providersReady ? tts.status() : { id: tts.id, label: "Browser voice", state: "checking" as const, detail: "Checking browser support." },
+      ai: ai.status(),
+    },
     tts,
     start, stop, toggleMute, interrupt, testVoice, recover, refreshDevices,
     clearErrors: () => setErrors([]),

@@ -65,7 +65,7 @@ function KiraEars() {
           <AmbientPanel engine={engine} />
           <div className="hidden lg:block"><SettingsPanel engine={engine} settings={settings} update={update} /></div>
           {settings.showDiagnostics && (
-            <Diagnostics engine={engine} server={status.data ? [status.data.ai, status.data.stt] : []} serverError={status.error ? (status.error as Error).message : undefined} />
+            <Diagnostics engine={engine} server={status.data ? [status.data.ai, status.data.stt] : []} {...(status.error ? { serverError: (status.error as Error).message } : {})} />
           )}
         </aside>
       </main>
