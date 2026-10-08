@@ -1,3 +1,4 @@
+import { Fragment, useEffect, useState } from "react";
 import type { KiraEngine } from "@/hooks/use-kira-engine";
 import { ambientClassifiers, speakerLabeler } from "@/lib/kira/classifiers";
 import type { ProviderStatus } from "@/lib/kira/providers";
@@ -53,6 +54,8 @@ export function ProviderList({ items }: { items: ProviderStatus[] }) {
 
 export function Diagnostics({ engine, server, serverError }: { engine: KiraEngine; server: ProviderStatus[]; serverError?: string }) {
   const m = engine.metrics;
+  const [secureContext, setSecureContext] = useState("—");
+  useEffect(() => setSecureContext(window.isSecureContext ? "yes" : "no"), []);
   const rows: [string, string][] = [
     ["Capture API", engine.supported ? "supported" : "unsupported"],
     ["Permission", engine.permission],
@@ -63,13 +66,13 @@ export function Diagnostics({ engine, server, serverError }: { engine: KiraEngin
     ["Level", `${m.db.toFixed(1)} dBFS · peak ${m.peak.toFixed(2)}`],
     ["ZCR", m.zcr.toFixed(3)],
     ["VAD", `${m.isSpeech ? "speech" : "no speech"} · thr ${m.threshold.toFixed(4)}`],
-    ["Secure context", typeof window !== "undefined" && window.isSecureContext ? "yes" : "no"],
+    ["Secure context", secureContext],
   ];
   return (
     <section className="panel p-5">
       <p className="eyebrow">Diagnostics</p>
       <dl className="mt-3 grid grid-cols-[8rem_1fr] gap-x-3 gap-y-1.5 font-mono text-xs">
-        {rows.map(([k, v]) => (<><dt key={k + "k"} className="text-muted-foreground">{k}</dt><dd key={k} className="truncate">{v}</dd></>))}
+        {rows.map(([k, v]) => (<Fragment key={k}><dt className="text-muted-foreground">{k}</dt><dd className="truncate">{v}</dd></Fragment>))}
       </dl>
       <p className="eyebrow mt-5 mb-2">Providers</p>
       <ProviderList items={[engine.providers.stt, engine.providers.tts, ...server]} />

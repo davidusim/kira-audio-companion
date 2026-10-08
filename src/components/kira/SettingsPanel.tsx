@@ -15,7 +15,7 @@ export function SettingsPanel({ engine, settings, update }: { engine: KiraEngine
   return (
     <section className="panel space-y-5 p-5">
       <p className="eyebrow">Settings</p>
-      <Field label="Microphone" note={live ? "Stop and restart listening to apply." : engine.permission !== "granted" ? "Device names appear after permission is granted." : undefined}>
+      <Field label="Microphone" {...(live ? { note: "Stop and restart listening to apply." } : engine.permission !== "granted" ? { note: "Device names appear after permission is granted." } : {})}>
         <select value={settings.deviceId} onChange={(e) => update({ deviceId: e.target.value })} className="w-full rounded-lg border bg-background px-2 py-2 text-sm">
           <option value="">System default</option>
           {engine.devices.filter((d) => d.deviceId && d.deviceId !== "default").map((d, i) => <option key={d.deviceId} value={d.deviceId}>{d.label || `Microphone ${i + 1}`}</option>)}

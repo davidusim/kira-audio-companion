@@ -61,7 +61,10 @@ export class BrowserSttProvider implements SttProvider {
     rec.onresult = (e) => {
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const r = e.results[i];
-        onResult({ text: r[0].transcript.trim(), final: r.isFinal, confidence: r[0].confidence || undefined });
+        const alternative = r?.[0];
+        if (!r || !alternative) continue;
+        const confidence = alternative.confidence;
+        onResult({ text: alternative.transcript.trim(), final: r.isFinal, ...(confidence ? { confidence } : {}) });
       }
     };
     rec.onerror = (e) => {
@@ -98,7 +101,7 @@ export class UnconfiguredAiProvider implements AiProvider {
   status(): ProviderStatus {
     return this.serverStatus ?? { id: this.id, label: "AI response", state: "unconfigured", detail: "No AI provider connected yet." };
   }
-  async respond(): Promise<string> {
+  async respond(_input: { transcript: string; history: { role: "user" | "assistant"; text: string }[] }, _signal: AbortSignal): Promise<string> {
     throw new Error("AI provider is not configured.");
   }
 }
