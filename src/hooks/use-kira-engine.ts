@@ -246,8 +246,8 @@ export function useKiraEngine(settings: KiraSettings, serverAi?: ProviderStatus)
     state, permission, devices, metrics, errors, interim, sampleRate, activeDevice, supported,
     analyserRef: capture, timeBuf,
     providers: {
-      stt: providersReady ? stt.status() : { id: stt.id, label: "Browser speech recognition", state: "checking", detail: "Checking browser support." },
-      tts: providersReady ? tts.status() : { id: tts.id, label: "Browser voice", state: "checking", detail: "Checking browser support." },
+      stt: providersReady ? stt.status() : { id: stt.id, label: "Browser speech recognition", state: "checking" as const, detail: "Checking browser support." },
+      tts: providersReady ? tts.status() : { id: tts.id, label: "Browser voice", state: "checking" as const, detail: "Checking browser support." },
       ai: ai.status(),
     },
     tts,
