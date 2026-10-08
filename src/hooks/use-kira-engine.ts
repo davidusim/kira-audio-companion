@@ -18,6 +18,7 @@ export function useKiraEngine(settings: KiraSettings, serverAi?: ProviderStatus)
   const [sampleRate, setSampleRate] = useState<number>();
   const [activeDevice, setActiveDevice] = useState<string>();
   const [supported, setSupported] = useState(true);
+  const [providersReady, setProvidersReady] = useState(false);
 
   const stateRef = useRef<EngineState>("idle");
   const settingsRef = useRef(settings);
@@ -59,6 +60,7 @@ export function useKiraEngine(settings: KiraSettings, serverAi?: ProviderStatus)
 
   // Initial capability + permission probe
   useEffect(() => {
+    setProvidersReady(true);
     sessionStore.hydrate();
     const ok = isCaptureSupported();
     setSupported(ok);
@@ -243,7 +245,11 @@ export function useKiraEngine(settings: KiraSettings, serverAi?: ProviderStatus)
   return {
     state, permission, devices, metrics, errors, interim, sampleRate, activeDevice, supported,
     analyserRef: capture, timeBuf,
-    providers: { stt: stt.status(), tts: tts.status(), ai: ai.status() },
+    providers: {
+      stt: providersReady ? stt.status() : { id: stt.id, label: "Browser speech recognition", state: "checking", detail: "Checking browser support." },
+      tts: providersReady ? tts.status() : { id: tts.id, label: "Browser voice", state: "checking", detail: "Checking browser support." },
+      ai: ai.status(),
+    },
     tts,
     start, stop, toggleMute, interrupt, testVoice, recover, refreshDevices,
     clearErrors: () => setErrors([]),

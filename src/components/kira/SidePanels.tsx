@@ -29,6 +29,7 @@ export function AmbientPanel({ engine }: { engine: KiraEngine }) {
 }
 
 const STATE_COLOR: Record<ProviderStatus["state"], string> = {
+  checking: "bg-warn",
   ready: "bg-ok",
   unconfigured: "bg-muted-foreground",
   unsupported: "bg-destructive",

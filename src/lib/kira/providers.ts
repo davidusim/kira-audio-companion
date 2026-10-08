@@ -1,7 +1,7 @@
 // Provider abstractions for STT, AI response, and TTS. Browser adapters use only standard APIs.
 // Server-backed adapters must call createServerFn endpoints — never put keys in this file.
 
-export type ProviderState = "ready" | "unconfigured" | "unsupported" | "pending-integration" | "error";
+export type ProviderState = "checking" | "ready" | "unconfigured" | "unsupported" | "pending-integration" | "error";
 
 export interface ProviderStatus {
   id: string;
